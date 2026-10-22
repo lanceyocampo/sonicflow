@@ -112,7 +112,7 @@
   const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const audio = $("#audio")
+  const audio = $("#audio");
   const artworkCache = new Map();
   const audioUrlCache = new Map();
   const viewLists = { quick: [], discover: [], library: [], favorites: [], recent: [] };
