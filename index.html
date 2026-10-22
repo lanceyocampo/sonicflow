@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090a0c">
+  <meta name="description" content="SonicFlow is a private, static music player with original generative demo loops, local audio imports, queues, favorites, and zero accounts.">
+  <title>SonicFlow — Find your frequency</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+  <div class="noise" aria-hidden="true"></div>
+
+  <svg class="svg-sprite" aria-hidden="true">
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="3"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="m6 5 10 7L6 19V5Zm11 0v14"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="m18 5-10 7 10 7V5ZM7 5v14"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4m14-1v2a3 3 0 0 1-3 3H3"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5Zm4 4a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5Zm5 4 5 5m0-5-5 5"/></symbol>
+    <symbol id="i-queue" viewBox="0 0 24 24"><path d="M4 6h11M4 12h11M4 18h7m7-12v12m0 0 3-3m-3 3-3-3"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m3 0-1 14H7L6 7m4 4v6m4-6v6"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="19" cy="12" r="1" fill="currentColor"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.1"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M3 12h2l2-7 4 14 3-11 3 8 2-4h2"/></symbol>
+  </svg>
+
+  <header class="topbar" id="topbar">
+    <button class="brand route-link" data-route="home" aria-label="SonicFlow home">
+      <span class="brand-mark"><span></span><span></span><span></span><span></span></span>
+      <span>SONICFLOW</span>
+    </button>
+    <nav class="main-nav" aria-label="Main navigation">
+      <button class="nav-link active route-link" data-route="home">Home</button>
+      <button class="nav-link route-link" data-route="discover">Discover</button>
+      <button class="nav-link route-link" data-route="library">Library</button>
+      <button class="nav-link route-link" data-route="favorites">Favorites <span class="nav-count" id="favorite-count">0</span></button>
+    </nav>
+    <div class="top-actions">
+      <label class="search-shell" for="search-input">
+        <svg class="icon"><use href="#i-search"></use></svg>
+        <input id="search-input" type="search" placeholder="Search your flow" autocomplete="off" aria-label="Search tracks">
+        <kbd>/</kbd>
+      </label>
+      <button class="icon-button import-trigger" aria-label="Import local audio" title="Import licensed audio">
+        <svg class="icon"><use href="#i-plus"></use></svg>
+      </button>
+      <button class="icon-button queue-trigger mobile-only" aria-label="Open queue" aria-expanded="false">
+        <svg class="icon"><use href="#i-queue"></use></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="app-view active" id="view-home" data-view="home" aria-label="Home">
+      <section class="hero" id="hero">
+        <div class="hero-orb orb-one" aria-hidden="true"></div>
+        <div class="hero-orb orb-two" aria-hidden="true"></div>
+        <div class="hero-grid" aria-hidden="true"></div>
+        <div class="hero-copy">
+          <p class="eyebrow hero-reveal"><span class="live-dot"></span> Original sound. Zero sign-up.</p>
+          <h1 aria-label="Find your frequency">
+            <span class="title-line"><span>Find your</span></span>
+            <span class="title-line accent-line"><span>frequency.</span></span>
+          </h1>
+          <p class="hero-description hero-reveal">A private listening space for focused work, slow mornings, and everywhere between. Every built-in sound is an original loop, composed in your browser.</p>
+          <div class="hero-actions hero-reveal">
+            <button class="button button-primary" id="hero-play">
+              <span class="button-play"><svg class="icon"><use href="#i-play"></use></svg></span>
+              Play the flow
+            </button>
+            <button class="button button-ghost route-link" data-route="discover">Explore sounds <svg class="icon"><use href="#i-arrow"></use></svg></button>
+          </div>
+          <div class="hero-proof hero-reveal">
+            <div><strong id="track-total">12</strong><span>original loops</span></div>
+            <div><strong>100%</strong><span>static &amp; private</span></div>
+            <div><strong>0</strong><span>accounts required</span></div>
+          </div>
+        </div>
+        <div class="hero-stage hero-reveal" id="hero-stage">
+          <div class="stage-rings" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="stage-card" id="stage-card">
+            <img id="hero-art" alt="Current album artwork" width="600" height="600">
+            <div class="stage-shine" aria-hidden="true"></div>
+            <div class="stage-topline"><span>NOW IN YOUR FLOW</span><span id="hero-track-number">01 / 12</span></div>
+            <div class="stage-meta">
+              <div><p id="hero-track-artist">SonicFlow Studio</p><h2 id="hero-track-title">Neon District</h2></div>
+              <button class="round-button favorite-button" id="hero-favorite" aria-label="Favorite current track"><svg class="icon"><use href="#i-heart"></use></svg></button>
+            </div>
+            <canvas id="hero-visualizer" width="600" height="90" aria-label="Live audio frequency visualization"></canvas>
+          </div>
+          <div class="floating-tag tag-bpm"><span id="hero-bpm">92</span> BPM</div>
+          <div class="floating-tag tag-local"><svg class="icon"><use href="#i-check"></use></svg> LOCAL AUDIO</div>
+        </div>
+        <div class="scroll-cue" aria-hidden="true"><span>Scroll to drift</span><i></i></div>
+      </section>
+
+      <section class="content-section quick-section reveal-section">
+        <div class="section-heading">
+          <div><p class="eyebrow">START SOMEWHERE</p><h2>A sound for right now.</h2></div>
+          <button class="text-button route-link" data-route="discover">View all sounds <svg class="icon"><use href="#i-arrow"></use></svg></button>
+        </div>
+        <div class="track-card-grid" id="quick-grid"></div>
+      </section>
+
+      <section class="content-section recent-section reveal-section" id="recent-section" hidden>
+        <div class="section-heading">
+          <div><p class="eyebrow">PICK UP WHERE YOU LEFT OFF</p><h2>Recently played.</h2></div>
+          <button class="text-button" id="clear-history">Clear history</button>
+        </div>
+        <div class="recent-row" id="recent-row"></div>
+      </section>
+
+      <section class="flow-story" id="flow-story" aria-labelledby="flow-story-title">
+        <div class="flow-sticky">
+          <div class="flow-copy">
+            <p class="eyebrow">THE ANATOMY OF A FLOW</p>
+            <h2 id="flow-story-title">Three layers.<br>One state of mind.</h2>
+            <p id="flow-story-caption">A pulse sets the pace. Harmony gives it color. Space lets it breathe.</p>
+            <div class="flow-steps" aria-label="Sound layers">
+              <span class="active" data-flow-step="0">01 / PULSE</span>
+              <span data-flow-step="1">02 / HARMONY</span>
+              <span data-flow-step="2">03 / SPACE</span>
+            </div>
+          </div>
+          <div class="flow-scene" aria-hidden="true">
+            <div class="flow-panel flow-panel-one"><span>01</span><svg viewBox="0 0 300 300"><path d="M0 150h35l20-65 35 130 35-105 35 80 35-40h105"/></svg><b>PULSE</b></div>
+            <div class="flow-panel flow-panel-two"><span>02</span><div class="mini-orbits"><i></i><i></i><i></i></div><b>HARMONY</b></div>
+            <div class="flow-panel flow-panel-three"><span>03</span><div class="space-lines"><i></i><i></i><i></i><i></i><i></i></div><b>SPACE</b></div>
+            <div class="flow-core"><img id="flow-core-art" alt=""><span>YOUR FLOW</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section local-callout reveal-section">
+        <div class="local-callout-art"><span>WAV</span><span>MP3</span><span>FLAC</span></div>
+        <div><p class="eyebrow">YOUR FILES STAY YOURS</p><h2>Bring your own licensed music.</h2><p>Import audio from your device. Files play locally in this browser, are never uploaded, and can be stored locally for your next visit.</p></div>
+        <button class="button button-light import-trigger">Choose audio files <svg class="icon"><use href="#i-upload"></use></svg></button>
+      </section>
+    </section>
+
+    <section class="app-view catalog-view" id="view-discover" data-view="discover" aria-label="Discover" hidden>
+      <header class="catalog-hero">
+        <p class="eyebrow">CURATED FOR CURIOSITY</p>
+        <h1>Discover a different<br><em>kind of atmosphere.</em></h1>
+        <p>Original electronic, ambient, jazz, and lo-fi studies. Short by design, seamless by nature.</p>
+      </header>
+      <div class="catalog-toolbar">
+        <div class="filter-chips" id="discover-genres" aria-label="Filter by genre"></div>
+        <label class="select-shell">Mood <select id="mood-filter"><option value="all">All moods</option></select></label>
+        <label class="select-shell">Sort <select id="discover-sort"><option value="curated">Curated</option><option value="title">Title A–Z</option><option value="bpm">Tempo</option><option value="duration">Duration</option></select></label>
+      </div>
+      <div class="results-line"><span id="discover-count">0 sounds</span><button class="text-button" id="reset-filters">Reset filters</button></div>
+      <div class="track-card-grid discover-grid" id="discover-grid"></div>
+      <div class="empty-state" id="discover-empty" hidden><span class="empty-wave"></span><h2>No frequencies found.</h2><p>Try a broader search or clear your filters.</p><button class="button button-ghost" id="empty-reset">Clear all filters</button></div>
+    </section>
+
+    <section class="app-view catalog-view" id="view-library" data-view="library" aria-label="Library" hidden>
+      <header class="catalog-hero compact">
+        <p class="eyebrow">EVERYTHING IN ONE PLACE</p>
+        <h1>Your library,<br><em>beautifully in order.</em></h1>
+        <p id="library-summary">Original SonicFlow loops and audio you import from this device.</p>
+      </header>
+      <div class="library-actions">
+        <button class="button button-primary" id="play-library"><svg class="icon"><use href="#i-play"></use></svg> Play library</button>
+        <button class="button button-ghost import-trigger"><svg class="icon"><use href="#i-plus"></use></svg> Add licensed audio</button>
+        <label class="select-shell push-right">Sort <select id="library-sort"><option value="title">Title</option><option value="artist">Artist</option><option value="album">Album</option><option value="genre">Genre</option><option value="duration">Duration</option></select></label>
+      </div>
+      <div class="track-table" role="table" aria-label="Music library">
+        <div class="track-table-head" role="row"><span>#</span><span>Title</span><span>Album</span><span>Genre</span><span><svg class="icon"><use href="#i-clock"></use></svg></span><span class="sr-only">Actions</span></div>
+        <div id="library-list"></div>
+      </div>
+      <div class="empty-state" id="library-empty" hidden><h2>Nothing matches that search.</h2><p>Clear the search to see your complete library.</p></div>
+      <div class="license-note"><svg class="icon"><use href="#i-info"></use></svg><p><strong>About the built-in audio:</strong> each short loop is synthesized locally from an original SonicFlow composition, then played through a standard HTML5 audio element. No copyrighted recordings or audio servers are used. <button class="inline-button import-trigger">Learn how to add your own MP3s</button>.</p></div>
+    </section>
+
+    <section class="app-view catalog-view" id="view-favorites" data-view="favorites" aria-label="Favorites" hidden>
+      <header class="catalog-hero compact favorites-heading">
+        <p class="eyebrow">SAVED FOR LATER</p>
+        <h1>The sounds you<br><em>keep coming back to.</em></h1>
+        <p id="favorites-summary">Your favorites are saved only in this browser.</p>
+      </header>
+      <div class="library-actions" id="favorites-actions" hidden>
+        <button class="button button-primary" id="play-favorites"><svg class="icon"><use href="#i-play"></use></svg> Play favorites</button>
+        <button class="button button-ghost" id="shuffle-favorites"><svg class="icon"><use href="#i-shuffle"></use></svg> Shuffle favorites</button>
+      </div>
+      <div class="track-card-grid" id="favorites-grid"></div>
+      <div class="empty-state favorites-empty" id="favorites-empty"><div class="empty-heart"><svg class="icon"><use href="#i-heart"></use></svg></div><h2>Make room for a favorite.</h2><p>Tap the heart on any track and it will wait for you here.</p><button class="button button-primary route-link" data-route="discover">Find a sound</button></div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="site-footer">
+    <button class="brand route-link" data-route="home"><span class="brand-mark"><span></span><span></span><span></span><span></span></span><span>SONICFLOW</span></button>
+    <p>A static listening experiment. No accounts, no tracking, no server.</p>
+    <div><button class="text-button import-trigger">Local audio guide</button><span>© 2026 SonicFlow</span></div>
+  </footer>
+
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+  <aside class="queue-panel" id="queue-panel" aria-label="Play queue" aria-hidden="true">
+    <div class="queue-header"><div><p class="eyebrow">UP NEXT</p><h2>Your queue <span id="queue-count">0</span></h2></div><button class="icon-button" id="close-queue" aria-label="Close queue"><svg class="icon"><use href="#i-close"></use></svg></button></div>
+    <div class="queue-now" id="queue-now"></div>
+    <div class="queue-subhead"><span>Coming up</span><button class="text-button" id="clear-queue">Clear</button></div>
+    <div class="queue-list" id="queue-list"></div>
+    <div class="queue-empty" id="queue-empty" hidden><svg class="icon"><use href="#i-queue"></use></svg><p>Your queue is clear.</p><span>Play any track to build a new flow.</span></div>
+  </aside>
+
+  <section class="player" id="player" aria-label="Music player">
+    <div class="player-progress-wrap">
+      <span id="player-current-time">0:00</span>
+      <label class="range-shell progress-shell" for="seek-bar">
+        <input id="seek-bar" class="range-input" type="range" min="0" max="100" value="0" step="0.1" aria-label="Seek through current track">
+        <span class="range-track"><span id="seek-fill"></span></span>
+      </label>
+      <span id="player-duration">0:00</span>
+    </div>
+    <div class="player-main">
+      <div class="player-track">
+        <button class="player-art-button" id="player-art-button" aria-label="Open current track queue"><img id="player-art" alt="" width="64" height="64"><span class="playing-bars" id="playing-bars"><i></i><i></i><i></i></span></button>
+        <div class="player-track-copy"><strong id="player-title">Choose a track</strong><span id="player-artist">Your next favorite is waiting</span></div>
+        <button class="icon-button favorite-button" id="player-favorite" aria-label="Favorite current track" disabled><svg class="icon"><use href="#i-heart"></use></svg></button>
+      </div>
+      <div class="transport">
+        <div class="transport-buttons">
+          <button class="icon-button control-secondary" id="shuffle-button" aria-label="Turn shuffle on" aria-pressed="false"><svg class="icon"><use href="#i-shuffle"></use></svg></button>
+          <button class="icon-button" id="previous-button" aria-label="Previous track"><svg class="icon"><use href="#i-prev"></use></svg></button>
+          <button class="play-button" id="play-button" aria-label="Play"><svg class="icon"><use href="#i-play"></use></svg><span class="button-spinner" aria-hidden="true"></span></button>
+          <button class="icon-button" id="next-button" aria-label="Next track"><svg class="icon"><use href="#i-next"></use></svg></button>
+          <button class="icon-button control-secondary" id="repeat-button" aria-label="Turn repeat on" data-mode="off"><svg class="icon"><use href="#i-repeat"></use></svg><span class="repeat-one">1</span></button>
+        </div>
+        <span class="player-status" id="player-status" role="status">Ready when you are</span>
+      </div>
+      <div class="player-tools">
+        <canvas id="mini-visualizer" width="100" height="36" aria-hidden="true"></canvas>
+        <button class="icon-button" id="mute-button" aria-label="Mute"><svg class="icon"><use href="#i-volume"></use></svg></button>
+        <label class="range-shell volume-shell" for="volume-bar"><input id="volume-bar" class="range-input" type="range" min="0" max="1" value="0.75" step="0.01" aria-label="Volume"><span class="range-track"><span id="volume-fill"></span></span></label>
+        <button class="icon-button queue-trigger" id="player-queue-button" aria-label="Open queue" aria-expanded="false"><svg class="icon"><use href="#i-queue"></use></svg></button>
+      </div>
+    </div>
+  </section>
+
+  <audio id="audio" preload="metadata"></audio>
+  <input type="file" id="audio-file-input" accept="audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/flac,audio/*" multiple hidden>
+
+  <dialog class="import-modal" id="import-modal" aria-labelledby="import-title">
+    <button class="modal-close icon-button" id="close-import" aria-label="Close import guide"><svg class="icon"><use href="#i-close"></use></svg></button>
+    <p class="eyebrow">LOCAL BY DESIGN</p>
+    <h2 id="import-title">Add music without<br>giving it away.</h2>
+    <p class="modal-intro">Choose audio you own or have permission to use. Playback and storage happen entirely in this browser; SonicFlow has no server and uploads nothing.</p>
+    <ol class="import-steps">
+      <li><span>01</span><div><strong>Find properly licensed files</strong><p>Use your own recordings, purchased downloads where local playback is permitted, or CC0 / Creative Commons audio that allows your intended use. Keep attribution where required.</p></div></li>
+      <li><span>02</span><div><strong>Choose one or more files</strong><p>MP3, WAV, OGG, M4A, and FLAC support depends on your browser. Filenames become track titles; you can play, queue, and favorite them like built-in loops.</p></div></li>
+      <li><span>03</span><div><strong>Come back on this device</strong><p>Imported files are saved in IndexedDB when storage is available. Browser privacy settings or clearing site data can remove them; the original files on your device are never changed.</p></div></li>
+    </ol>
+    <div class="static-file-note"><strong>Adding files to the static project?</strong><p>Place licensed files in <code>assets/audio/</code> and artwork in <code>assets/images/</code>, then add matching relative paths and metadata to the track data in <code>script.js</code>. The site needs no build step.</p></div>
+    <button class="button button-primary modal-import-button" id="modal-import-button"><svg class="icon"><use href="#i-upload"></use></svg> Choose audio files</button>
+    <p class="storage-status" id="storage-status">Local file storage is available in this browser.</p>
+  </dialog>
+
+  <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
+  <noscript><div class="noscript">SonicFlow needs JavaScript for audio playback and navigation. Please enable JavaScript to listen.</div></noscript>
+</body>
+</html>
