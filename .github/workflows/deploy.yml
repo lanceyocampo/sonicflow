@@ -1,4 +1,4 @@
-name: Lint and deploy SonicFlow
+name: Lint, test, and deploy SonicFlow
 
 on:
   push:
@@ -15,8 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality:
-    name: Lint and package static site
+  lint:
+    name: Lint JavaScript code
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -34,10 +34,41 @@ jobs:
       - name: Run ESLint quality gate
         run: npm run lint
 
+  test:
+    name: Run Jest unit tests
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked development dependencies
+        run: npm ci
+
+      - name: Run Jest test suite
+        run: npm test
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Package static runtime files
         run: |
           mkdir -p _site
-          cp index.html style.css script.js _site/
+          cp index.html style.css script.js greeting.js _site/
           if [ -d assets ]; then cp -R assets _site/assets; fi
 
       - name: Configure GitHub Pages
@@ -50,14 +81,6 @@ jobs:
         with:
           path: _site
 
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: quality
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
       - name: Deploy packaged site
         id: deployment
         uses: actions/deploy-pages@v4

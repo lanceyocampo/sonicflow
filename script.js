@@ -1644,6 +1644,9 @@
     activateRoute(initialRoute, false);
     updateFlowScene(0);
     requestScrollUpdate();
+    if (typeof window !== "undefined" && window.SonicGreeting && typeof window.SonicGreeting.initFlowGreeting === "function") {
+      window.SonicGreeting.initFlowGreeting();
+    }
   }
 
   initialize().catch((error) => {

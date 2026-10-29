@@ -62,10 +62,27 @@ The following task was supplied verbatim:
 >
 > Provide complete consistent working code, Windows-friendly commands, public repository and GitHub Pages setup instructions, troubleshooting, a README covering installation/deployment/linting/failure testing, a short explanation of version control/CI/quality checks/CD, and a final screenshot/submission checklist. The site must run statically without a backend or build process. Only ESLint and the deployment workflow may use Node.js/npm. Do not claim deployment succeeded until verified by the user.
 
-## Additional prompts
+## Prompt 2 — Jest testing and automated CI quality pipeline enhancement
 
-None. No follow-up prompt was supplied. Web requests used during implementation were documentation/dependency lookups, not additional LLM prompts.
+The following task was supplied verbatim:
+
+> task: Using this static site (HTML/CSS/JS) hosted on GitHub Pages with a GitHub Actions workflow from last week's activity, add a unique JS function that runs when the page is loaded, then use Jest (JS testing framework) to create a test job after linting so that deployment only happens if both the lint and test jobs pass (10 pts). Demonstrate a failing test and a passing test (10 pts). You may use your preferred LLM to assist you with this task. Submit the link to your GitHub repository (make sure it is set to public) and share all of your LLM prompts here (5 pts).
+
+### LLM assistance details
+
+- **Assistant:** Gemini 3.8 Flash (High) via Antigravity IDE
+- **Implementation summary:**
+  1. **Unique JS function on page load:** Created `greeting.js` containing `initFlowGreeting()`, `getFlowGreeting()`, `formatGreetingMessage()`, and `applyFlowGreeting()`. Automatically evaluates the user's local time upon `DOMContentLoaded` to calculate the current flow vibe (Dawn Resonance, Midday Momentum, Golden Hour Drift, or Midnight Frequency), injects the dynamic `#flow-greeting-banner` into the hero section, emits an informative console greeting, and exposes `window.SonicGreeting`.
+  2. **Jest test suite:** Created `greeting.test.js` containing 14 unit tests validating time boundary conditions (morning, afternoon, evening, night), native `Date` parsing, input validation and type error throwing, message string formatting, DOM element mutations, and headless execution safely returning null.
+  3. **Multi-job GitHub Actions workflow (`.github/workflows/deploy.yml`):** Re-architected workflow into three serial jobs with clear dependency gates:
+     - `lint` (ESLint quality check)
+     - `test` (`needs: lint`, runs Jest unit tests via `npm test`)
+     - `deploy` (`needs: [lint, test]`, packages `_site` and publishes to GitHub Pages only if both lint and tests pass).
+  4. **Intentional failure and passing demonstrations:** Documented and verified how to intentionally break a test assertion (causing `test` job to fail and skipping `deploy`), followed by restoring the assertion to achieve full green recovery.
 
 ## Submission note
 
-Copy this prompt log into the assignment's LLM-prompt field or link to this file in the public repository. Repository and Pages URLs must be added by the repository owner after creating and verifying them.
+Copy this prompt log into the assignment's LLM-prompt field or link to this file in the public repository:
+- **Repository URL:** `https://github.com/lanceyocampo/sonicflow`
+- **Pages URL:** `https://lanceyocampo.github.io/sonicflow/`
+

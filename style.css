@@ -173,6 +173,95 @@ kbd { padding: 1px 6px; border: 1px solid var(--line); border-radius: 5px; color
 .hero-stage.hero-reveal { animation-delay: .45s; transform: translateY(45px) scale(.94); animation-name: stage-in; }
 @keyframes hero-in { to { opacity: 1; transform: none; } }
 @keyframes stage-in { to { opacity: 1; transform: none; } }
+
+/* Dynamic Flow Greeting Banner (Executed on Page Load) */
+.flow-greeting-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  width: fit-content;
+  max-width: 100%;
+  animation: hero-in 800ms 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+.greeting-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.greeting-title {
+  color: var(--ink);
+  font-weight: 600;
+}
+.greeting-divider {
+  color: var(--faint);
+  font-size: 10px;
+}
+.greeting-vibe {
+  color: var(--acid);
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.greeting-chip {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(217, 255, 99, 0.12);
+  border: 1px solid rgba(217, 255, 99, 0.25);
+  color: var(--acid);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.greeting-tagline {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.flow-greeting-banner[data-period="morning"] .greeting-chip {
+  background: rgba(255, 213, 138, 0.15);
+  border-color: rgba(255, 213, 138, 0.35);
+  color: #ffd58a;
+}
+.flow-greeting-banner[data-period="morning"] .greeting-vibe {
+  color: #ffd58a;
+}
+.flow-greeting-banner[data-period="afternoon"] .greeting-chip {
+  background: rgba(142, 237, 222, 0.15);
+  border-color: rgba(142, 237, 222, 0.35);
+  color: #8eedde;
+}
+.flow-greeting-banner[data-period="afternoon"] .greeting-vibe {
+  color: #8eedde;
+}
+.flow-greeting-banner[data-period="evening"] .greeting-chip {
+  background: rgba(255, 147, 100, 0.15);
+  border-color: rgba(255, 147, 100, 0.35);
+  color: #ff9364;
+}
+.flow-greeting-banner[data-period="evening"] .greeting-vibe {
+  color: #ff9364;
+}
+.flow-greeting-banner[data-period="night"] .greeting-chip {
+  background: rgba(162, 135, 255, 0.15);
+  border-color: rgba(162, 135, 255, 0.35);
+  color: #a287ff;
+}
+.flow-greeting-banner[data-period="night"] .greeting-vibe {
+  color: #a287ff;
+}
 .hero-description { max-width: 520px; margin: 0 0 32px; color: #b4b5b1; font-size: clamp(15px, 1.2vw, 18px); line-height: 1.7; }
 .hero-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .hero-proof { display: flex; gap: clamp(22px, 3vw, 48px); margin-top: 55px; }

@@ -29,6 +29,8 @@ sonicflow/
 ├── index.html
 ├── style.css
 ├── script.js
+├── greeting.js                # unique page-load vibe & session greeting function
+├── greeting.test.js           # Jest unit test suite (14 tests)
 ├── package.json
 ├── package-lock.json
 ├── eslint.config.js
@@ -37,7 +39,7 @@ sonicflow/
 ├── .gitignore
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml
+│       └── deploy.yml         # CI/CD: lint -> test -> deploy
 └── assets/                    # optional; create when adding static files
     ├── audio/                 # licensed MP3/WAV/OGG files
     └── images/                # licensed cover artwork
@@ -201,6 +203,126 @@ Perform these tests in order and finish with Test C so `main` is not left broken
 
 4. Confirm the new quality and deploy jobs succeed. Leave this fixed commit as the tip of `main`.
 
+## Unique JS function: Dynamic Flow Welcomer (`greeting.js`)
+
+SonicFlow includes a unique JavaScript function that automatically executes when the page loads (`DOMContentLoaded`):
+
+```javascript
+import { initFlowGreeting } from "./greeting.js";
+```
+
+### What it does on page load:
+1. **Time-of-day vibe detection:** Inspects the user's current local hour and categorizes it into one of four curated listening periods:
+   - **Morning (05:00 - 11:59):** Dawn Resonance (`apricot-sky` / Gentle Focus) — *"Dusty drums and warm chords to ease into your morning workflow."*
+   - **Afternoon (12:00 - 16:59):** Midday Momentum (`glass-garden` / High Kinetic) — *"Bright arpeggios and lively tempos to sustain deep concentration."*
+   - **Evening (17:00 - 21:59):** Golden Hour Drift (`afterglow-avenue` / Smooth Rhythm) — *"Sunset chord stabs and steady pulses to transition into the evening."*
+   - **Night (22:00 - 04:59):** Midnight Frequency (`slow-satellites` / Deep Ambient) — *"Weightless pads and sparse bell tones for quiet nocturnal contemplation."*
+2. **DOM injection:** Dynamically renders the `#flow-greeting-banner` component inside the hero section, displaying a glowing live status indicator, the current greeting, a vibe chip, and tailored guidance.
+3. **Console reporting:** Emits a styled session diagnostic notice via `console.info`.
+4. **Global exposure:** Exposes the API under `window.SonicGreeting` for integration with `script.js` and manual testing.
+
+## Automated testing with Jest
+
+Jest is configured with ECMAScript Modules (`--experimental-vm-modules`) and provides 14 automated unit tests in `greeting.test.js`:
+
+```powershell
+npm test
+```
+
+### Test coverage areas:
+- **Boundary condition testing:** Validates correct vibe selection across all boundary hours (morning, afternoon, evening, night).
+- **Date parsing:** Validates passing standard `Date` instances.
+- **Input error handling:** Ensures `RangeError` is thrown for out-of-range hours (< 0 or > 23), and `TypeError` for floats or non-numeric types.
+- **Message formatting:** Verifies string construction in `formatGreetingMessage()`.
+- **DOM mutation:** Validates attributes (`data-period`, `data-vibe`) and content manipulation in `applyFlowGreeting()`.
+- **Headless & SSR safety:** Ensures safe degradation when executed in non-browser environments.
+
+## CI/CD Workflow with separate Lint and Test jobs
+
+The GitHub Actions workflow (`.github/workflows/deploy.yml`) enforces a strict multi-stage quality pipeline:
+
+```text
+[ Lint Job ] ──► [ Test Job ] ──► [ Deploy Job ]
+(ESLint check)   (Jest suite)      (GitHub Pages)
+```
+
+1. **`lint` job:** Runs `npm run lint` (`eslint script.js greeting.js greeting.test.js`).
+2. **`test` job (`needs: lint`):** Runs `npm test` (`jest`). Executes only if `lint` succeeds.
+3. **`deploy` job (`needs: [lint, test]`):** Packages static files (`index.html`, `style.css`, `script.js`, `greeting.js`) and publishes to GitHub Pages **only if both lint AND test jobs pass**.
+
+If any test assertion fails, the `test` job exits with code 1, immediately cancelling and skipping the `deploy` job so broken code is never published.
+
+## Required test failure and passing demonstrations
+
+### Test D — demonstrate an intentional Jest test failure
+
+1. Open `greeting.test.js` in your editor.
+2. Inside the first test (`"returns morning vibe for morning hours"`), change the expected greeting string or period to an invalid value:
+
+   ```javascript
+   // Change from:
+   expect(greeting.period).toBe("morning");
+   // To intentionally broken:
+   expect(greeting.period).toBe("broken-morning-test");
+   ```
+
+3. Run Jest locally to observe the failure:
+
+   ```powershell
+   npm test
+   ```
+
+   Confirm Jest reports:
+   ```text
+   ● SonicFlow Greeting & Vibe Advisor Unit Tests › getFlowGreeting time periods › returns morning vibe for morning hours (05:00 - 11:59)
+
+     Expected: "broken-morning-test"
+     Received: "morning"
+   ```
+
+4. Commit and push the intentional failure:
+
+   ```powershell
+   git add greeting.test.js
+   git commit -m "Test CI: intentionally break Jest unit test assertion"
+   git push
+   ```
+
+5. In your GitHub repository, open **Actions** and inspect the new run:
+   - **`lint` job:** ✅ Passed (green checkmark).
+   - **`test` job:** ❌ Failed with exit code 1 (red X).
+   - **`deploy` job:** ⚪ Skipped / blocked (gray). No deployment occurred.
+6. Take a screenshot showing the failed `test` job and skipped `deploy` job.
+
+### Test E — restore the test and verify green deployment
+
+1. Restore the assertion in `greeting.test.js`:
+
+   ```javascript
+   expect(greeting.period).toBe("morning");
+   ```
+
+2. Run tests and linter locally to confirm all pass:
+
+   ```powershell
+   npm run lint
+   npm test
+   ```
+
+3. Commit and push the fix:
+
+   ```powershell
+   git add greeting.test.js
+   git commit -m "Restore Jest assertion and verify CI test recovery"
+   git push
+   ```
+
+4. In **Actions**, observe the new run:
+   - **`lint` job:** ✅ Passed.
+   - **`test` job:** ✅ Passed (14 tests passed).
+   - **`deploy` job:** ✅ Passed, site packaged and published to GitHub Pages.
+5. Take a screenshot showing all three jobs green and visit your live GitHub Pages URL.
+
 ### Capture the evidence on Windows
 
 - Press **Win+Shift+S** to capture a selected region, or **PrtScn** for the full screen.
@@ -250,17 +372,18 @@ Together, these practices make software configuration changes traceable, repeata
 
 ## Final evidence and submission checklist
 
-- [ ] Public GitHub repository URL: `https://github.com/USERNAME/sonicflow`
-- [ ] Verified GitHub Pages URL: `https://USERNAME.github.io/sonicflow/`
-- [ ] Screenshot of Home and the working player controls.
+- [ ] Public GitHub repository URL: `https://github.com/lanceyocampo/sonicflow`
+- [ ] Verified GitHub Pages URL: `https://lanceyocampo.github.io/sonicflow/`
+- [ ] Screenshot of Home and the working player controls with dynamic greeting banner.
 - [ ] Screenshot of Test A: clean lint, artifact upload, and successful deployment.
 - [ ] Screenshot of Test B: expanded `semi` lint error and failed quality job.
-- [ ] Screenshot of Test B: deployment skipped.
 - [ ] Screenshot of Test C: restored semicolon and successful workflow.
-- [ ] Commit links or run numbers for Tests A, B, and C.
-- [ ] `package-lock.json` committed and `npm ci` used in CI.
+- [ ] Screenshot of Test D: failed Jest unit test in CI with `deploy` job skipped.
+- [ ] Screenshot of Test E: passing Jest unit test suite in CI with successful `deploy` job.
+- [ ] Commit links or run numbers for all CI tests (Tests A–E).
+- [ ] `package-lock.json` committed with Jest and `npm ci` passing.
 - [ ] Pages source set to **GitHub Actions**, not a branch.
-- [ ] `main` ends on the fixed, passing Test C commit.
+- [ ] `main` ends on the passing Test E commit.
 - [ ] LLM prompt log included from `PROMPTS.md` in the assignment submission.
 
 Do not mark deployment or workflow results complete until you have personally verified them in your repository.

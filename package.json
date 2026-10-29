@@ -5,12 +5,13 @@
   "description": "A fully static, private, vanilla JavaScript music player for GitHub Pages.",
   "type": "module",
   "scripts": {
-    "lint": "eslint script.js",
-    "test": "npm run lint"
+    "lint": "eslint script.js greeting.js greeting.test.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
-    "eslint": "^9.39.4"
+    "eslint": "^9.39.4",
+    "jest": "^30.5.2"
   },
   "engines": {
     "node": ">=18.18.0"
