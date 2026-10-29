@@ -10,7 +10,7 @@ describe("SonicFlow Greeting & Vibe Advisor Unit Tests", () => {
     test("returns morning vibe for morning hours (05:00 - 11:59)", () => {
       [5, 8, 11].forEach((hour) => {
         const greeting = getFlowGreeting(hour);
-        expect(greeting.period).toBe("intentional-failing-test-demonstration");
+        expect(greeting.period).toBe("morning");
         expect(greeting.greeting).toBe("Good morning, sonic explorer");
         expect(greeting.vibe).toBe("Dawn Resonance");
         expect(greeting.energy).toBe("Gentle Focus");
